@@ -8,10 +8,12 @@ class ProdutoController {
             const resultado = await ProdutoService.listarProdutos();
             res.json(resultado);
         } catch (erro) {
-            res.status(erro.status || 500).json({
+            const status = erro?.status || 500;
+            const mensagem = erro?.mensagem || erro?.message || "Erro interno do servidor";
+            res.status(status).json({
                 sucesso: false,
-                mensagem: erro.mensagem || "Erro interno do servidor",
-                erro: erro.stack || erro
+                mensagem,
+                erro: erro?.stack || erro
             });
         }
     }
@@ -21,9 +23,12 @@ class ProdutoController {
             const resultado = await ProdutoService.buscarProdutoPorId(req.params.id);
             res.json(resultado);
         } catch (erro) {
-            res.status(erro.status || 500).json({
+            const status = erro?.status || 500;
+            const mensagem = erro?.mensagem || erro?.message || "Erro interno do servidor";
+            res.status(status).json({
                 sucesso: false,
-                mensagem: erro.mensagem || "Erro interno do servidor"
+                mensagem,
+                erro: erro?.stack || erro
             });
         }
     }
@@ -33,9 +38,12 @@ class ProdutoController {
             const resultado = await ProdutoService.cadastrarProduto(req.body);
             res.status(201).json(resultado);
         } catch (erro) {
-            res.status(erro.status || 500).json({
+            const status = erro?.status || 500;
+            const mensagem = erro?.mensagem || erro?.message || "Erro interno do servidor";
+            res.status(status).json({
                 sucesso: false,
-                mensagem: erro.mensagem || "Erro interno do servidor"
+                mensagem,
+                erro: erro?.stack || erro
             });
         }
     }
@@ -68,9 +76,12 @@ class ProdutoController {
             const resultado = await ProdutoService.deletarProduto(req.params.id);
             res.json(resultado);
         } catch (erro) {
-            res.status(erro.status || 500).json({
+            const status = erro?.status || 500;
+            const mensagem = erro?.mensagem || erro?.message || "Erro interno do servidor";
+            res.status(status).json({
                 sucesso: false,
-                mensagem: erro.mensagem || "Erro interno do servidor"
+                mensagem,
+                erro: erro?.stack || erro
             });
         }
     }
@@ -112,10 +123,12 @@ class ProdutoController {
             res.status(201).json(resultado);
         } catch (erro) {
             console.error('Erro ao cadastrar produto:', erro);
-            res.status(erro.status || 500).json({
+            const status = erro?.status || 500;
+            const mensagem = erro?.mensagem || erro?.message || "Erro ao cadastrar produto";
+            res.status(status).json({
                 sucesso: false,
-                mensagem: erro.mensagem || "Erro ao cadastrar produto",
-                erro: erro.stack || erro
+                mensagem,
+                erro: erro?.stack || erro
             });
         }
     }
@@ -145,10 +158,12 @@ class ProdutoController {
             if (req.file) {
                 await fs.unlink(req.file.path).catch(() => {});
             }
-            res.status(erro.status || 500).json({
+            const status = erro?.status || 500;
+            const mensagem = erro?.mensagem || erro?.message || "Erro interno do servidor";
+            res.status(status).json({
                 sucesso: false,
-                mensagem: erro.mensagem || "Erro interno do servidor",
-                erro: erro.stack || erro
+                mensagem,
+                erro: erro?.stack || erro
             });
         }
     }
