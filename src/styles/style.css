@@ -339,7 +339,12 @@ button {
 /* ============================================================
    Dashboard Layout (SaaS Desktop)
    ============================================================ */
-.app-shell {
+#topo-site {
+  margin-top: 12px;
+}
+
+
+   .app-shell {
   display: flex;
   height: 100vh;
   width: 100vw;
@@ -366,10 +371,12 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #9FA3C0;
-  padding: 16px 10px 6px;
+  padding: 16px 10px 0
 }
 
-.nav-list { list-style: none; margin: 0; padding: 0; }
+.nav-list { list-style: none; margin: 0; padding: 2px 0; }
+
+.nav-list li { margin: 3px 0; padding: 0; }
 
 .nav-list a {
   display: flex;
@@ -577,6 +584,12 @@ button {
   line-height: 1;
 }
 
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px -4px #50567f53;
+  cursor: pointer;
+}
+
 .kpi-card.alert .kpi-value { color: var(--color-danger); }
 
 .status-dot {
@@ -757,4 +770,54 @@ button {
     gap: 10px;
     align-items: flex-start;
   }
+}
+/* ============================================================
+   ESTILIZAÇÃO DA BARRA DE ROLAGEM (Exibe apenas no Hover)
+   ============================================================ */
+
+/* 1. Suporte Padrão (Firefox e navegadores modernos) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+}
+
+/* Revela a barra no hover do container (fundo claro) */
+*:hover {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Revela a barra no hover de áreas escuras (como a Sidebar) */
+.app-sidebar:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+/* 2. Suporte WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+/* Exibe a barra quando o cursor passa sobre a área rolável */
+*:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.app-sidebar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Destaque quando o cursor passa diretamente por cima da barra */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary) !important;
 }
