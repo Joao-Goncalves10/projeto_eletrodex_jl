@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
+
 const produtoRoutes = require("./produtoRoutes");
 const funcionarioRoutes = require("./funcionarioRoutes");
 const loteRoutes = require("./loteRoutes");
+const nivelRoutes = require("./nivelRoutes");
+const movimentacaoLoteRoutes = require("./movimentacaoloteRoutes");
 
 // Rota de checagem do status da API Eletrodex
 router.get("/", (req, res) => {
@@ -15,5 +18,7 @@ router.get("/", (req, res) => {
 router.use("/produtos", produtoRoutes);
 router.use("/funcionarios", funcionarioRoutes);
 router.use("/lotes", loteRoutes);
+router.use("/nivel", nivelRoutes);
+router.use("/movimentacao-lote", movimentacaoLoteRoutes);
 
 module.exports = router;
