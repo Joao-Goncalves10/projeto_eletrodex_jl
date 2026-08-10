@@ -1,5 +1,7 @@
 const pool = require('../config/database');
 
+const ALLOWED_COLUMNS = ['nome', 'descricao'];
+
 class ProdutoRepository {
     async findAll() {
         const [rows] = await pool.query('SELECT * FROM produto ORDER BY id_produto DESC');
@@ -13,10 +15,21 @@ class ProdutoRepository {
     }
 
     async create(produtoData) {
-        const { nome, descricao, preco, categoria, imagem } = produtoData;
+        const camposValidos = {};
+
+        for (const coluna of ALLOWED_COLUMNS) {
+            if (produtoData[coluna] !== undefined && produtoData[coluna] !== null) {
+                camposValidos[coluna] = produtoData[coluna];
+            }
+        }
+
+        if (!camposValidos.nome || !camposValidos.descricao) {
+            throw { status: 400, mensagem: 'Nome e descrição são obrigatórios' };
+        }
+
         const [result] = await pool.query(
-            'INSERT INTO produto (nome, descricao, preco, categoria, imagem) VALUES (?, ?, ?, ?, ?)',
-            [nome, descricao, preco, categoria, imagem]
+            'INSERT INTO produto (nome, descricao) VALUES (?, ?)',
+            [camposValidos.nome, camposValidos.descricao]
         );
         return result.insertId;
     }
@@ -24,12 +37,14 @@ class ProdutoRepository {
     async update(id, produtoData) {
         const fields = [];
         const values = [];
-        
+
         for (const [key, value] of Object.entries(produtoData)) {
-            fields.push(`${key} = ?`);
-            values.push(value);
+            if (ALLOWED_COLUMNS.includes(key)) {
+                fields.push(`${key} = ?`);
+                values.push(value);
+            }
         }
-        
+
         if (fields.length === 0) return null;
 
         values.push(id);

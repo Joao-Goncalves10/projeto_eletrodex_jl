@@ -30,8 +30,8 @@ class ProdutoService {
     }
 
     async cadastrarProduto(dados) {
-        if (!dados || !dados.nome || !dados.descricao || !dados.preco) {
-            throw { status: 400, mensagem: "Nome, descrição e preço são obrigatórios" };
+        if (!dados || !dados.nome || !dados.descricao ) {
+            throw { status: 400, mensagem: "Nome e descrição são obrigatórios" };
         }
 
         const id = await ProdutoRepository.create(dados);
