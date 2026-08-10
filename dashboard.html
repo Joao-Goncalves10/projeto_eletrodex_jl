@@ -14,12 +14,12 @@
 <div class="app-shell">
   <div class="sidebar-scrim" data-sidebar-scrim></div>
 
-  <nav class="app-sidebar" aria-label="Navegação principal">
+  <aside class="app-sidebar" id="app-sidebar" aria-label="Navegação principal">
     <div class="brand-mark"><span>Eletrodex</span><span class="dot">●</span></div>
 
     <p class="nav-group-label">Visão geral</p>
     <ul class="nav-list">
-      <li><a href="dashboard.html" data-page="painel"><span class="tick"></span>Painel</a></li>
+      <li><a href="dashboard.html" class="active" data-page="painel"><span class="tick"></span>Painel</a></li>
       <li><a href="#" data-page="notificacoes"><span class="tick"></span>Notificações de estoque</a></li>
     </ul>
 
@@ -47,103 +47,107 @@
 
     <div class="sidebar-foot">
       <div class="avatar">JL</div>
-      <div>
-        <div>João Lucas</div>
+      <div class="user-info">
+        <div class="user-name">João Lucas</div>
         <div class="role-badge">Coordenador</div>
       </div>
     </div>
-  </nav>
+  </aside>
 
   <div class="app-main">
     <header class="app-topbar">
-      <div style="display:flex; align-items:center; gap:14px; flex-wrap: wrap;">
+      <div class="topbar-left">
         <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
-        <div style="flex: 1; min-width: 200px;">
+        <div>
           <h1>Painel geral</h1>
-          <p class="subtitle">Visão consolidada do estoque e das movimentações de hoje</p>
+          <p class="subtitle">Visão consolidada do estoque e das movimentações</p>
         </div>
       </div>
 
       <div class="topbar-actions">
-        <input type="search" class="search-input" placeholder="Buscar produto, lote ou funcionário" aria-label="Buscar">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input type="search" class="search-input" placeholder="Buscar produto, lote ou funcionário..." aria-label="Buscar">
+        </div>
         <button class="icon-btn" aria-label="Notificações de estoque crítico">
           🔔
           <span class="badge">3</span>
-        </button>
-        <button type="button" class="contrast-toggle" data-contrast-toggle aria-pressed="false" style="position:static;">
-          Alto contraste
         </button>
       </div>
     </header>
 
     <main class="app-content" id="conteudo">
-      <section class="kpi-grid" aria-label="Indicadores gerais">
-        <div class="card kpi-card">
-          <div class="kpi-label">Produtos cadastrados</div>
-          <div class="kpi-value">248</div>
-        </div>
-        <div class="card kpi-card alert">
-          <div class="kpi-label">
-            Estoque crítico
-            <span class="status-dot danger"></span>
+      <div class="content-container">
+        <section class="kpi-grid" aria-label="Indicadores gerais">
+          <div class="card kpi-card">
+            <div class="kpi-label">Produtos em estoque</div>
+            <div class="kpi-value">248</div>
           </div>
-          <div class="kpi-value">6</div>
-        </div>
-        <div class="card kpi-card">
-          <div class="kpi-label">Movimentações hoje</div>
-          <div class="kpi-value">14</div>
-        </div>
-        <div class="card kpi-card">
-          <div class="kpi-label">Devoluções pendentes</div>
-          <div class="kpi-value">2</div>
-        </div>
-      </section>
+          <div class="card kpi-card alert">
+            <div class="kpi-label">
+              Crítico
+              <span class="status-dot danger"></span>
+            </div>
+            <div class="kpi-value">6</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Movimentações hoje</div>
+            <div class="kpi-value">14</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Pendências</div>
+            <div class="kpi-value">2</div>
+          </div>
+        </section>
 
-      <section class="card" aria-labelledby="mov-title">
-        <div class="panel-header">
-          <h2 id="mov-title">Movimentações recentes</h2>
-          <a href="#" data-page="movimentacao">Ver todas</a>
-        </div>
+        <section class="card activity-card" aria-labelledby="mov-title">
+          <div class="panel-header">
+            <h2 id="mov-title">Atividade recente</h2>
+            <a href="#" class="view-all-link">Ver todas →</a>
+          </div>
 
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th scope="col">Produto</th>
-              <th scope="col">Lote</th>
-              <th scope="col">Setor</th>
-              <th scope="col">Responsável</th>
-              <th scope="col">Estado</th>
-              <th scope="col">Data</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Micro-ondas Compact 20L</td>
-              <td class="id-cell">LT-0231</td>
-              <td>Expedição</td>
-              <td>Letícia Caristo</td>
-              <td><span class="pill ok">Disponível</span></td>
-              <td>09/08/2026 · 14:22</td>
-            </tr>
-            <tr>
-              <td>Micro-ondas Grill 32L</td>
-              <td class="id-cell">LT-0198</td>
-              <td>Recebimento</td>
-              <td>José Arthur</td>
-              <td><span class="pill warn">Em revisão</span></td>
-              <td>09/08/2026 · 11:05</td>
-            </tr>
-            <tr>
-              <td>Micro-ondas Inox 28L</td>
-              <td class="id-cell">LT-0176</td>
-              <td>Devolução</td>
-              <td>Luiz Gustavo</td>
-              <td><span class="pill danger">Avariado</span></td>
-              <td>08/08/2026 · 17:40</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="col-product">Produto</th>
+                  <th scope="col" class="col-lot">Lote</th>
+                  <th scope="col" class="col-sector">Setor</th>
+                  <th scope="col" class="col-user">Responsável</th>
+                  <th scope="col" class="col-status">Estado</th>
+                  <th scope="col" class="col-time">Horário</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="col-product"><strong>Micro-ondas Compact 20L</strong></td>
+                  <td class="id-cell col-lot">LT-0231</td>
+                  <td class="col-sector">Expedição</td>
+                  <td class="col-user">Letícia Caristo</td>
+                  <td class="col-status"><span class="pill ok">✓ Disponível</span></td>
+                  <td class="col-time">14:22</td>
+                </tr>
+                <tr>
+                  <td class="col-product"><strong>Micro-ondas Grill 32L</strong></td>
+                  <td class="id-cell col-lot">LT-0198</td>
+                  <td class="col-sector">Recebimento</td>
+                  <td class="col-user">José Arthur</td>
+                  <td class="col-status"><span class="pill warn">⊙ Em revisão</span></td>
+                  <td class="col-time">11:05</td>
+                </tr>
+                <tr>
+                  <td class="col-product"><strong>Micro-ondas Inox 28L</strong></td>
+                  <td class="id-cell col-lot">LT-0176</td>
+                  <td class="col-sector">Devolução</td>
+                  <td class="col-user">Luiz Gustavo</td>
+                  <td class="col-status"><span class="pill danger">✗ Avariado</span></td>
+                  <td class="col-time">17:40</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </main>
   </div>
 </div>
