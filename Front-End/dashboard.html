@@ -70,10 +70,52 @@
           <span class="search-icon" aria-hidden="true">🔍</span>
           <input type="search" class="search-input" placeholder="Buscar produto, lote ou funcionário..." aria-label="Buscar">
         </div>
-        <button class="icon-btn" aria-label="Notificações de estoque crítico">
-          🔔
-          <span class="badge">3</span>
-        </button>
+        <div class="notifications-wrapper">
+          <button class="icon-btn notification-btn" aria-label="Notificações de estoque crítico" aria-expanded="false" aria-controls="notifications-panel">
+            🔔
+            <span class="badge">3</span>
+          </button>
+
+          <div class="notifications-panel" id="notifications-panel" role="dialog" aria-labelledby="notifications-title">
+            <div class="notifications-header">
+              <h3 id="notifications-title">Notificações de Estoque</h3>
+              <button class="close-notifications-btn" aria-label="Fechar notificações">✕</button>
+            </div>
+
+            <div class="notifications-list">
+              <div class="notification-item notification-critical">
+                <div class="notification-icon">⚠️</div>
+                <div class="notification-content">
+                  <div class="notification-title">Estoque Crítico</div>
+                  <div class="notification-message">Micro-ondas Compact 20L está em nível crítico (2 unidades)</div>
+                  <div class="notification-time">há 15 minutos</div>
+                </div>
+              </div>
+
+              <div class="notification-item notification-warning">
+                <div class="notification-icon">⊙</div>
+                <div class="notification-content">
+                  <div class="notification-title">Revisão Pendente</div>
+                  <div class="notification-message">Lote LT-0198 aguardando revisão há 2 horas</div>
+                  <div class="notification-time">há 2 horas</div>
+                </div>
+              </div>
+
+              <div class="notification-item notification-critical">
+                <div class="notification-icon">⚠️</div>
+                <div class="notification-content">
+                  <div class="notification-title">Vencimento Próximo</div>
+                  <div class="notification-message">Micro-ondas Grill 32L vence em 7 dias</div>
+                  <div class="notification-time">há 4 horas</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="notifications-footer">
+              <a href="#" class="view-all-notifications">Ver todas as notificações →</a>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
