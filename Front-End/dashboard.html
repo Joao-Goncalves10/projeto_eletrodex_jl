@@ -20,6 +20,7 @@
     <p class="nav-group-label">Visão geral</p>
     <ul class="nav-list">
       <li><a href="dashboard.html" class="active" data-page="painel"><span class="tick"></span>Painel</a></li>
+      <li><a href="#" data-page="critico"><span class="tick"></span>Crítico</a></li>
       <li><a href="#" data-page="notificacoes"><span class="tick"></span>Notificações de estoque</a></li>
     </ul>
 
@@ -46,9 +47,9 @@
     </ul>
 
     <div class="sidebar-foot">
-      <div class="avatar">JL</div>
+      <div class="avatar">SU</div>
       <div class="user-info">
-        <div class="user-name">João Lucas</div>
+        <div class="user-name">Seu usuário</div>
         <div class="role-badge">Coordenador</div>
       </div>
     </div>
@@ -58,7 +59,7 @@
     <header class="app-topbar">
       <div class="topbar-left">
         <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
-        <div>
+        <div id="topo-site">
           <h1>Painel geral</h1>
           <p class="subtitle">Visão consolidada do estoque e das movimentações</p>
         </div>
@@ -69,10 +70,52 @@
           <span class="search-icon" aria-hidden="true">🔍</span>
           <input type="search" class="search-input" placeholder="Buscar produto, lote ou funcionário..." aria-label="Buscar">
         </div>
-        <button class="icon-btn" aria-label="Notificações de estoque crítico">
-          🔔
-          <span class="badge">3</span>
-        </button>
+        <div class="notifications-wrapper">
+          <button class="icon-btn notification-btn" aria-label="Notificações de estoque crítico" aria-expanded="false" aria-controls="notifications-panel">
+            🔔
+            <span class="badge">3</span>
+          </button>
+
+          <div class="notifications-panel" id="notifications-panel" role="dialog" aria-labelledby="notifications-title">
+            <div class="notifications-header">
+              <h3 id="notifications-title">Notificações de Estoque</h3>
+              <button class="close-notifications-btn" aria-label="Fechar notificações">✕</button>
+            </div>
+
+            <div class="notifications-list">
+              <div class="notification-item notification-critical">
+                <div class="notification-icon">⚠️</div>
+                <div class="notification-content">
+                  <div class="notification-title">Estoque Crítico</div>
+                  <div class="notification-message">Micro-ondas Compact 20L está em nível crítico (2 unidades)</div>
+                  <div class="notification-time">há 15 minutos</div>
+                </div>
+              </div>
+
+              <div class="notification-item notification-warning">
+                <div class="notification-icon">⊙</div>
+                <div class="notification-content">
+                  <div class="notification-title">Revisão Pendente</div>
+                  <div class="notification-message">Lote LT-0198 aguardando revisão há 2 horas</div>
+                  <div class="notification-time">há 2 horas</div>
+                </div>
+              </div>
+
+              <div class="notification-item notification-critical">
+                <div class="notification-icon">⚠️</div>
+                <div class="notification-content">
+                  <div class="notification-title">Vencimento Próximo</div>
+                  <div class="notification-message">Micro-ondas Grill 32L vence em 7 dias</div>
+                  <div class="notification-time">há 4 horas</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="notifications-footer">
+              <a href="#" class="view-all-notifications">Ver todas as notificações →</a>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
