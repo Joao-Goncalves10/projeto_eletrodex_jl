@@ -1,11 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const FuncionarioController = require("../controllers/FuncionarioController");
+const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
-router.get("/", FuncionarioController.listar);
-router.get("/:id", FuncionarioController.buscarPorId);
-router.post("/", FuncionarioController.cadastrar);
-router.put("/:id", FuncionarioController.atualizar);
-router.delete("/:id", FuncionarioController.deletar);
+router.post("/login", FuncionarioController.login);
+router.post("/solicitar-redefinicao-senha", FuncionarioController.solicitarRedefinicaoSenha);
+router.post("/redefinir-senha", FuncionarioController.redefinirSenha);
+router.post("/cadastro", FuncionarioController.cadastrarConta);
+router.get("/sessao", authenticate, FuncionarioController.sessaoAtual);
+router.post("/logout", authenticate, FuncionarioController.logout);
+router.put("/perfil", authenticate, FuncionarioController.atualizarPerfil);
+
+router.get("/", authenticate, authorize("Administrador", "Gerente"), FuncionarioController.listar);
+router.get("/:id", authenticate, authorize("Administrador", "Gerente"), FuncionarioController.buscarPorId);
+router.post("/", authenticate, authorize("Administrador"), FuncionarioController.cadastrar);
+router.put("/:id", authenticate, authorize("Administrador"), FuncionarioController.atualizar);
+router.delete("/:id", authenticate, authorize("Administrador"), FuncionarioController.deletar);
 
 module.exports = router;

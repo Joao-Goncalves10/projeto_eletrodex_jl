@@ -1,4 +1,6 @@
 const FuncionarioService = require("../services/FuncionarioService");
+const PasswordResetService = require("../services/PasswordResetService");
+const SessionService = require("../services/SessionService");
 
 class FuncionarioController {
   async listar(req, res) {
@@ -31,14 +33,93 @@ class FuncionarioController {
     }
   }
 
+  async login(req, res) {
+    try {
+      const resultado = await FuncionarioService.autenticarFuncionario(req.body);
+      res.status(200).json(resultado);
+    } catch (error) {
+      const status = error.status || 500;
+      const mensagem = status === 500
+        ? "Não foi possível entrar. Tente novamente mais tarde."
+        : error.mensagem;
+      res.status(status).json({ erro: mensagem });
+    }
+  }
+
+  async solicitarRedefinicaoSenha(req, res) {
+    try {
+      const resultado = await PasswordResetService.solicitar(req.body?.email);
+      res.status(202).json(resultado);
+    } catch (error) {
+      const status = error.status || 500;
+      const mensagem = status >= 500
+        ? error.mensagem || "Não foi possível solicitar a redefinição agora."
+        : error.mensagem;
+      res.status(status).json({ erro: mensagem });
+    }
+  }
+
+  async redefinirSenha(req, res) {
+    try {
+      const resultado = await PasswordResetService.redefinir(req.body?.token, req.body?.senha);
+      res.status(200).json(resultado);
+    } catch (error) {
+      const status = error.status || 500;
+      const mensagem = status >= 500
+        ? "Não foi possível redefinir a senha. Tente novamente mais tarde."
+        : error.mensagem;
+      res.status(status).json({ erro: mensagem });
+    }
+  }
+
+  sessaoAtual(req, res) {
+    res.status(200).json({ sucesso: true, usuario: req.usuario });
+  }
+
+  logout(req, res) {
+    SessionService.destroy(req.sessionToken);
+    res.status(204).end();
+  }
+
+  async cadastrarConta(req, res) {
+    try {
+      const resultado = await FuncionarioService.cadastrarConta(req.body);
+      res.status(201).json(resultado);
+    } catch (error) {
+      const status = error.status || (error.code === "ER_DUP_ENTRY" ? 409 : 500);
+      const mensagem = status === 500
+        ? "Não foi possível cadastrar o funcionário. Tente novamente mais tarde."
+        : error.mensagem || "E-mail ou CPF já cadastrado.";
+      res.status(status).json({ erro: mensagem });
+    }
+  }
+
   async atualizar(req, res) {
     try {
       const id = req.params.id;
-      const resultado = await FuncionarioService.atualizarFuncionario(id, req.body);
+      const resultado = await FuncionarioService.atualizarFuncionario(
+        id,
+        req.body,
+        req.usuario.id_funcionario
+      );
       res.status(200).json(resultado);
     } catch (error) {
       const code = error.status || 400;
       res.status(code).json({ erro: error.mensagem || error.message });
+    }
+  }
+
+  async atualizarPerfil(req, res) {
+    try {
+      const resultado = await FuncionarioService.atualizarPerfil(
+        req.usuario.id_funcionario,
+        req.body
+      );
+      res.status(200).json(resultado);
+    } catch (error) {
+      res.status(error.status || 500).json({
+        erro: error.status ? error.mensagem : "Não foi possível atualizar o perfil.",
+      });
     }
   }
 

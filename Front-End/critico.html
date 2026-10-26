@@ -19,31 +19,31 @@
 
     <p class="nav-group-label">Visão geral</p>
     <ul class="nav-list">
-      <li><a href="dashboard.html" data-page="painel"><span class="tick"></span>Painel</a></li>
-      <li><a href="critico.html" data-page="critico"><span class="tick"></span>Crítico</a></li>
-      <li><a href="#" data-page="notificacoes"><span class="tick"></span>Notificações de estoque</a></li>
+      <li><a href="dashboard.html" data-page="painel" data-roles="Administrador,Gerente"><span class="tick"></span>Painel</a></li>
+      <li><a href="critico.html" data-page="critico" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Crítico</a></li>
+      <li><a href="#" data-page="notificacoes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Notificações de estoque</a></li>
     </ul>
 
     <p class="nav-group-label">Estoque</p>
     <ul class="nav-list">
-      <li><a href="produtos.html" data-page="produtos"><span class="tick"></span>Produtos</a></li>
-      <li><a href="#" data-page="lotes"><span class="tick"></span>Lotes</a></li>
-      <li><a href="#" data-page="movimentacao"><span class="tick"></span>Movimentação</a></li>
-      <li><a href="#" data-page="entrada"><span class="tick"></span>Entrada de produtos</a></li>
-      <li><a href="#" data-page="saida"><span class="tick"></span>Saída de produtos</a></li>
-      <li><a href="#" data-page="devolucoes"><span class="tick"></span>Devoluções</a></li>
+      <li><a href="produtos.html" data-page="produtos" data-roles="Administrador,Gerente,Estoquista,Vendedor,Funcionário"><span class="tick"></span>Produtos</a></li>
+      <li><a href="#" data-page="lotes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Lotes</a></li>
+      <li><a href="#" data-page="movimentacao" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Movimentação</a></li>
+      <li><a href="#" data-page="entrada" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Entrada de produtos</a></li>
+      <li><a href="#" data-page="saida" data-roles="Administrador,Gerente,Estoquista,Vendedor"><span class="tick"></span>Saída de produtos</a></li>
+      <li><a href="#" data-page="devolucoes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Devoluções</a></li>
     </ul>
 
     <p class="nav-group-label">Vendas</p>
     <ul class="nav-list">
-      <li><a href="#" data-page="vendas"><span class="tick"></span>Vendas</a></li>
-      <li><a href="#" data-page="pagamentos"><span class="tick"></span>Formas de pagamento</a></li>
+      <li><a href="#" data-page="vendas" data-roles="Administrador,Gerente,Vendedor"><span class="tick"></span>Vendas</a></li>
+      <li><a href="#" data-page="pagamentos" data-roles="Administrador,Gerente,Vendedor"><span class="tick"></span>Formas de pagamento</a></li>
     </ul>
 
     <p class="nav-group-label">Administração</p>
     <ul class="nav-list">
-      <li><a href="#" data-page="funcionarios"><span class="tick"></span>Funcionários</a></li>
-      <li><a href="#" data-page="niveis"><span class="tick"></span>Níveis de acesso</a></li>
+      <li><a href="#" data-page="funcionarios" data-roles="Administrador,Gerente"><span class="tick"></span>Funcionários</a></li>
+      <li><a href="#" data-page="niveis" data-roles="Administrador"><span class="tick"></span>Níveis de acesso</a></li>
     </ul>
 
     <div class="sidebar-foot">
@@ -51,7 +51,9 @@
       <div class="user-info">
         <div class="user-name">Seu usuário</div>
         <div class="role-badge">Coordenador</div>
+        <button type="button" class="profile-edit-button" data-profile-open>Editar perfil</button>
       </div>
+      <button type="button" class="logout-button" data-logout>Sair</button>
     </div>
   </aside>
 
@@ -139,7 +141,7 @@
                   <th scope="col" class="col-minimo">Qtd Mín.</th>
                   <th scope="col" class="col-diferenca">Diferença</th>
                   <th scope="col" class="col-localizacao">Localização</th>
-                  <th scope="col" class="col-acao">Ação</th>
+                  <th scope="col" class="col-acao" data-roles="Administrador,Gerente,Estoquista">Ação</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,7 +152,7 @@
                   <td class="col-minimo">10</td>
                   <td class="col-diferenca"><span class="badge-danger">-8</span></td>
                   <td class="col-localizacao">Bloco A - Prateleira 3</td>
-                  <td class="col-acao"><a href="#" class="action-link">Repor</a></td>
+                  <td class="col-acao" data-roles="Administrador,Gerente,Estoquista"><a href="#" class="action-link">Repor</a></td>
                 </tr>
                 <tr class="danger-row">
                   <td class="col-produto"><strong>Fogão Grill Premium</strong></td>
@@ -159,7 +161,7 @@
                   <td class="col-minimo">15</td>
                   <td class="col-diferenca"><span class="badge-danger">-10</span></td>
                   <td class="col-localizacao">Bloco D - Prateleira 1</td>
-                  <td class="col-acao"><a href="#" class="action-link">Repor</a></td>
+                  <td class="col-acao" data-roles="Administrador,Gerente,Estoquista"><a href="#" class="action-link">Repor</a></td>
                 </tr>
                 <tr class="danger-row">
                   <td class="col-produto"><strong>Forno Elétrico 50L</strong></td>
@@ -168,7 +170,7 @@
                   <td class="col-minimo">20</td>
                   <td class="col-diferenca"><span class="badge-danger">-12</span></td>
                   <td class="col-localizacao">Bloco C - Prateleira 4</td>
-                  <td class="col-acao"><a href="#" class="action-link">Repor</a></td>
+                  <td class="col-acao" data-roles="Administrador,Gerente,Estoquista"><a href="#" class="action-link">Repor</a></td>
                 </tr>
               </tbody>
             </table>
@@ -191,7 +193,7 @@
                   <th scope="col" class="col-lote">Lote/Ref</th>
                   <th scope="col" class="col-responsavel">Responsável</th>
                   <th scope="col" class="col-tempo">Tempo Pendente</th>
-                  <th scope="col" class="col-acao">Ação</th>
+                  <th scope="col" class="col-acao" data-roles="Administrador,Gerente,Estoquista">Ação</th>
                 </tr>
               </thead>
               <tbody>
@@ -201,7 +203,7 @@
                   <td class="id-cell col-lote">LT-0198</td>
                   <td class="col-responsavel">José Arthur</td>
                   <td class="col-tempo">2h 15min</td>
-                  <td class="col-acao"><a href="#" class="action-link">Revisar</a></td>
+                  <td class="col-acao" data-roles="Administrador,Gerente,Estoquista"><a href="#" class="action-link">Revisar</a></td>
                 </tr>
                 <tr class="warning-row">
                   <td class="col-tipo"><span class="pill warn">Verificação</span></td>
@@ -209,7 +211,7 @@
                   <td class="id-cell col-lote">LT-0201</td>
                   <td class="col-responsavel">Maria Silva</td>
                   <td class="col-tempo">45min</td>
-                  <td class="col-acao"><a href="#" class="action-link">Verificar</a></td>
+                  <td class="col-acao" data-roles="Administrador,Gerente,Estoquista"><a href="#" class="action-link">Verificar</a></td>
                 </tr>
                 <tr class="warning-row">
                   <td class="col-tipo"><span class="pill warn">Aprovação</span></td>
@@ -217,7 +219,7 @@
                   <td class="id-cell col-lote">LT-0195</td>
                   <td class="col-responsavel">Coordenador</td>
                   <td class="col-tempo">1h 30min</td>
-                  <td class="col-acao"><a href="#" class="action-link">Aprovar</a></td>
+                  <td class="col-acao" data-roles="Administrador,Gerente,Estoquista"><a href="#" class="action-link">Aprovar</a></td>
                 </tr>
                 <tr class="warning-row">
                   <td class="col-tipo"><span class="pill warn">Devolução</span></td>
@@ -225,7 +227,7 @@
                   <td class="id-cell col-lote">LT-0176</td>
                   <td class="col-responsavel">Luiz Gustavo</td>
                   <td class="col-tempo">4h 20min</td>
-                  <td class="col-acao"><a href="#" class="action-link">Processar</a></td>
+                  <td class="col-acao" data-roles="Administrador,Gerente,Estoquista"><a href="#" class="action-link">Processar</a></td>
                 </tr>
               </tbody>
             </table>
@@ -237,6 +239,22 @@
   </div>
 </div>
 
+<dialog class="profile-dialog" data-profile-dialog aria-labelledby="profile-dialog-title">
+  <form data-profile-form novalidate>
+    <div class="profile-dialog-header">
+      <div><p class="eyebrow">Conta pessoal</p><h2 id="profile-dialog-title">Editar perfil</h2></div>
+      <button type="button" class="close-notifications-btn" data-profile-close aria-label="Fechar">×</button>
+    </div>
+    <div class="form-error" role="alert" aria-live="polite"></div>
+    <div class="field"><label for="perfil-nome">Nome completo</label><input id="perfil-nome" name="nome" type="text" maxlength="100" autocomplete="name" required></div>
+    <div class="field"><label for="perfil-email">E-mail</label><input id="perfil-email" name="email" type="email" maxlength="100" autocomplete="email" required></div>
+    <div class="field"><label for="perfil-cpf">CPF</label><input id="perfil-cpf" name="cpf" type="text" inputmode="numeric" maxlength="14" autocomplete="off" required></div>
+    <p class="field-hint">O cargo é gerenciado pelo Administrador e não pode ser alterado aqui.</p>
+    <div class="profile-dialog-actions"><button type="button" class="btn-secondary" data-profile-close>Cancelar</button><button type="submit" class="btn-primary">Salvar perfil</button></div>
+  </form>
+</dialog>
+
+<script src="./src/scripts/config.js"></script>
 <script src="./src/scripts/app.js"></script>
 </body>
 </html>

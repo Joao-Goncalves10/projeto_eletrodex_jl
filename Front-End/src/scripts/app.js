@@ -1,13 +1,208 @@
-// Eletrodex — base de comportamento do front-end
-// Sem dependências externas. Pensado para ser plugado numa API depois.
+// Eletrodex — interações do front-end e integração com a API.
 
-document.addEventListener('DOMContentLoaded', () => {
+const API_BASE_URL = window.ELETRODEX_CONFIG?.apiBaseUrl;
+const PAGE_ROLES = {
+  painel: ['Administrador', 'Gerente'],
+  critico: ['Administrador', 'Gerente', 'Estoquista'],
+  produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
+};
+
+function paginaInicialDoCargo(nivel) {
+  return ['Administrador', 'Gerente'].includes(nivel) ? 'dashboard.html' : 'produtos.html';
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!await enforceAuthentication()) return;
+
   initContrastToggle();
   initSidebar();
+  initProfileEditor();
+  initAuthTabs();
   initLoginForm();
+  initRegisterForm();
+  initPasswordRecovery();
+  initLogout();
   initNotifications();
   markActiveNav();
 });
+
+async function enforceAuthentication() {
+  if (!document.body.dataset.page) return true;
+
+  try {
+    const token = sessionStorage.getItem('eletrodex-token');
+    if (!token || !API_BASE_URL) throw new Error('Sessão ausente.');
+
+    const response = await fetch(`${API_BASE_URL}/funcionarios/sessao`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Sessão inválida.');
+
+    const { usuario } = await response.json();
+    const user = { nome: usuario.nome, email: usuario.email, cpf: usuario.cpf, nivel: usuario.nivel };
+    sessionStorage.setItem('eletrodex-user', JSON.stringify(user));
+
+    if (!PAGE_ROLES[document.body.dataset.page]?.includes(user.nivel)) {
+      window.location.replace(`${paginaInicialDoCargo(user.nivel)}?acesso=negado`);
+      return false;
+    }
+
+    applyRoleAccess(user);
+    return true;
+  } catch (error) {
+    clearSession();
+    window.location.replace('index.html');
+    return false;
+  }
+}
+
+function clearSession() {
+  sessionStorage.removeItem('eletrodex-token');
+  sessionStorage.removeItem('eletrodex-user');
+  sessionStorage.removeItem('eletrodex-authenticated');
+}
+
+function initProfileEditor() {
+  const dialog = document.querySelector('[data-profile-dialog]');
+  const form = document.querySelector('[data-profile-form]');
+  if (!dialog || !form) return;
+
+  const errorBox = form.querySelector('.form-error');
+  const open = () => {
+    const user = JSON.parse(sessionStorage.getItem('eletrodex-user') || '{}');
+    form.elements.nome.value = user.nome || '';
+    form.elements.email.value = user.email || '';
+    form.elements.cpf.value = user.cpf || '';
+    errorBox.className = 'form-error';
+    dialog.showModal();
+  };
+
+  document.querySelectorAll('[data-profile-open]').forEach((button) => {
+    button.addEventListener('click', open);
+  });
+  dialog.querySelectorAll('[data-profile-close]').forEach((button) => {
+    button.addEventListener('click', () => dialog.close());
+  });
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const nome = form.elements.nome.value.trim();
+    const email = form.elements.email.value.trim();
+    const cpf = form.elements.cpf.value.trim();
+    const button = form.querySelector('[type="submit"]');
+    errorBox.className = 'form-error';
+
+    if (!nome || !email || !cpf || !form.elements.email.validity.valid || !cpfValido(cpf)) {
+      errorBox.textContent = !cpfValido(cpf)
+        ? 'Informe um CPF válido.'
+        : 'Informe nome, e-mail válido e CPF.';
+      errorBox.classList.add('visible');
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Salvando...';
+    try {
+      const response = await fetch(`${API_BASE_URL}/funcionarios/perfil`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionStorage.getItem('eletrodex-token')}`,
+        },
+        body: JSON.stringify({ nome, email, cpf }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.erro || 'Não foi possível atualizar o perfil.');
+
+      sessionStorage.setItem('eletrodex-user', JSON.stringify(result.usuario));
+      const name = document.querySelector('.user-name');
+      const avatar = document.querySelector('.sidebar-foot .avatar');
+      if (name) name.textContent = result.usuario.nome;
+      if (avatar) {
+        avatar.textContent = result.usuario.nome.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+      }
+      errorBox.textContent = result.mensagem || 'Perfil atualizado com sucesso.';
+      errorBox.classList.add('visible', 'success');
+    } catch (error) {
+      errorBox.textContent = error instanceof TypeError
+        ? 'Não foi possível conectar ao servidor.'
+        : error.message;
+      errorBox.classList.add('visible');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Salvar perfil';
+    }
+  });
+}
+
+function applyRoleAccess(user) {
+  document.querySelectorAll('[data-roles]').forEach((element) => {
+    const allowedRoles = element.dataset.roles.split(',');
+    const item = element.closest('li') || element;
+    item.hidden = !allowedRoles.includes(user.nivel);
+  });
+
+  document.querySelectorAll('.nav-list').forEach((list) => {
+    const hasVisibleItem = Array.from(list.children).some((item) => !item.hidden);
+    list.hidden = !hasVisibleItem;
+    const label = list.previousElementSibling;
+    if (label?.classList.contains('nav-group-label')) label.hidden = !hasVisibleItem;
+  });
+
+  const name = document.querySelector('.user-name');
+  const role = document.querySelector('.role-badge');
+  const avatar = document.querySelector('.sidebar-foot .avatar');
+  if (name) name.textContent = user.nome;
+  if (role) role.textContent = user.nivel;
+  if (avatar) {
+    avatar.textContent = user.nome.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+  }
+
+}
+
+function initLogout() {
+  document.querySelectorAll('[data-logout]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const token = sessionStorage.getItem('eletrodex-token');
+      try {
+        if (token && API_BASE_URL) {
+          await fetch(`${API_BASE_URL}/funcionarios/logout`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        }
+      } finally {
+        clearSession();
+        window.location.replace('index.html');
+      }
+    });
+  });
+}
+
+/* ---------- alternância entre login e cadastro ---------- */
+function initAuthTabs() {
+  const tabs = document.querySelectorAll('[data-auth-tab]');
+  const panels = document.querySelectorAll('[data-auth-panel]');
+  if (!tabs.length || !panels.length) return;
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const selected = tab.dataset.authTab;
+      tabs.forEach((item) => {
+        const isSelected = item === tab;
+        item.classList.toggle('active', isSelected);
+        item.setAttribute('aria-selected', String(isSelected));
+        item.tabIndex = isSelected ? 0 : -1;
+      });
+      panels.forEach((panel) => {
+        panel.hidden = panel.dataset.authPanel !== selected;
+      });
+    });
+  });
+}
 
 /* ---------- alto contraste ---------- */
 function initContrastToggle() {
@@ -64,23 +259,268 @@ function initLoginForm() {
   const form = document.querySelector('[data-login-form]');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const errorBox = form.querySelector('.form-error');
-    const usuario = form.usuario.value.trim();
-    const senha = form.senha.value.trim();
+    const email = form.email.value.trim();
+    const senha = form.senha.value;
+    const button = form.querySelector('[type="submit"]');
 
-    if (!usuario || !senha) {
-      errorBox.textContent = 'Informe usuário e senha para entrar.';
+    if (!email || !senha) {
+      errorBox.textContent = 'Informe e-mail e senha para entrar.';
+      errorBox.classList.add('visible');
+      return;
+    }
+    if (!form.email.validity.valid) {
+      errorBox.textContent = 'Informe um e-mail válido para entrar.';
+      errorBox.classList.add('visible');
+      form.email.focus();
+      return;
+    }
+
+    if (!API_BASE_URL) {
+      errorBox.textContent = 'A URL da API não está configurada.';
       errorBox.classList.add('visible');
       return;
     }
 
-    // TODO: substituir por POST /login na API do Eletrodex.
-    // Em caso de sucesso, redirecionar para dashboard.html
-    // conforme o cargo retornado (Gerente, Coordenador,
-    // Administrador, RH ou Operador de Estoque).
-    window.location.href = 'dashboard.html';
+    button.disabled = true;
+    button.textContent = 'Verificando...';
+    try {
+      const response = await fetch(`${API_BASE_URL}/funcionarios/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha }),
+      });
+      const resultado = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(resultado.erro || 'E-mail ou senha inválidos.');
+      }
+
+      sessionStorage.setItem('eletrodex-token', resultado.token);
+      sessionStorage.setItem('eletrodex-user', JSON.stringify(resultado.usuario));
+      window.location.href = paginaInicialDoCargo(resultado.usuario.nivel);
+    } catch (error) {
+      errorBox.textContent = error instanceof TypeError
+        ? 'Não foi possível conectar ao servidor. Verifique se o backend está iniciado.'
+        : error.message;
+      errorBox.classList.add('visible');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Entrar';
+    }
+  });
+}
+
+function cpfValido(cpf) {
+  if (!/^[\d.\-\s]+$/.test(cpf)) return false;
+  const digitos = cpf.replace(/\D/g, "");
+  if (digitos.length !== 11 || /^(\d)\1{10}$/.test(digitos)) return false;
+
+  const calcularDigito = (base, pesoInicial) => {
+    const soma = base.split("").reduce(
+      (total, digito, indice) => total + Number(digito) * (pesoInicial - indice),
+      0
+    );
+    const resto = (soma * 10) % 11;
+    return resto === 10 ? 0 : resto;
+  };
+
+  return calcularDigito(digitos.slice(0, 9), 10) === Number(digitos[9])
+    && calcularDigito(digitos.slice(0, 10), 11) === Number(digitos[10]);
+}
+
+/* ---------- cadastro de funcionário ---------- */
+function initRegisterForm() {
+  const form = document.querySelector('[data-register-form]');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorBox = form.querySelector('.form-error');
+    const senha = form.senha.value;
+    const confirmacao = form.confirmacao.value;
+    const button = form.querySelector('[type="submit"]');
+
+    errorBox.classList.remove('success');
+    errorBox.classList.remove('visible');
+    if (!cpfValido(form.cpf.value)) {
+      errorBox.textContent = 'Informe um CPF válido.';
+      errorBox.classList.add('visible');
+      form.cpf.focus();
+      return;
+    }
+    if (senha.trim().length < 8) {
+      errorBox.textContent = 'A senha deve ter ao menos 8 caracteres não vazios.';
+      errorBox.classList.add('visible');
+      form.senha.focus();
+      return;
+    }
+    if (senha !== confirmacao) {
+      errorBox.textContent = 'As senhas informadas não coincidem.';
+      errorBox.classList.add('visible');
+      form.confirmacao.focus();
+      return;
+    }
+
+    if (!API_BASE_URL) {
+      errorBox.textContent = 'A URL da API não está configurada.';
+      errorBox.classList.add('visible');
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Enviando...';
+    try {
+      const response = await fetch(`${API_BASE_URL}/funcionarios/cadastro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: form.nome.value.trim(),
+          email: form.email.value.trim(),
+          cpf: form.cpf.value.trim(),
+          senha,
+        }),
+      });
+      const resultado = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(resultado.erro || 'Não foi possível concluir o cadastro.');
+      }
+
+      errorBox.textContent = resultado.mensagem || 'Funcionário cadastrado com sucesso.';
+      errorBox.classList.add('visible', 'success');
+      form.reset();
+    } catch (error) {
+      errorBox.textContent = error instanceof TypeError
+        ? 'Não foi possível conectar ao servidor. Verifique se o backend está iniciado.'
+        : error.message;
+      errorBox.classList.add('visible');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Solicitar cadastro';
+    }
+  });
+}
+
+function initPasswordRecovery() {
+  const authTabs = document.querySelector('.auth-tabs');
+  const authPanels = document.querySelectorAll('[data-auth-panel]');
+  const recoveryPanels = document.querySelectorAll('[data-password-panel]');
+  const requestForm = document.querySelector('[data-password-request-form]');
+  const resetForm = document.querySelector('[data-password-reset-form]');
+  if (!authTabs || !requestForm || !resetForm) return;
+
+  const showRecovery = (panelName) => {
+    authTabs.hidden = Boolean(panelName);
+    authPanels.forEach((panel) => { panel.hidden = Boolean(panelName); });
+    recoveryPanels.forEach((panel) => {
+      panel.hidden = panel.dataset.passwordPanel !== panelName;
+    });
+  };
+
+  document.querySelector('[data-forgot-password]')?.addEventListener('click', () => {
+    showRecovery('request');
+    requestForm.reset();
+    requestForm.querySelector('.form-error').className = 'form-error';
+  });
+
+  document.querySelectorAll('[data-back-to-login]').forEach((button) => {
+    button.addEventListener('click', () => {
+      showRecovery(null);
+      document.querySelector('[data-auth-tab="login"]')?.click();
+      window.history.replaceState({}, '', window.location.pathname);
+    });
+  });
+
+  const token = new URLSearchParams(window.location.search).get('token');
+  if (token) {
+    showRecovery('reset');
+    resetForm.elements.token.value = token;
+  }
+
+  requestForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const errorBox = requestForm.querySelector('.form-error');
+    const button = requestForm.querySelector('[type="submit"]');
+    const email = requestForm.elements.email.value.trim();
+    errorBox.className = 'form-error';
+
+    if (!email || !requestForm.elements.email.validity.valid) {
+      errorBox.textContent = 'Informe um e-mail válido.';
+      errorBox.classList.add('visible');
+      requestForm.elements.email.focus();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Enviando...';
+    try {
+      const response = await fetch(`${API_BASE_URL}/funcionarios/solicitar-redefinicao-senha`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.erro || 'Não foi possível solicitar a recuperação.');
+      errorBox.textContent = result.mensagem;
+      errorBox.classList.add('visible', 'success');
+    } catch (error) {
+      errorBox.textContent = error instanceof TypeError
+        ? 'Não foi possível conectar ao servidor.'
+        : error.message;
+      errorBox.classList.add('visible');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Enviar link de recuperação';
+    }
+  });
+
+  resetForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const errorBox = resetForm.querySelector('.form-error');
+    const button = resetForm.querySelector('[type="submit"]');
+    const senha = resetForm.elements.senha.value;
+    const confirmacao = resetForm.elements.confirmacao.value;
+    errorBox.className = 'form-error';
+
+    if (senha.trim().length < 8 || new TextEncoder().encode(senha).length > 72) {
+      errorBox.textContent = 'A senha deve ter ao menos 8 caracteres e até 72 bytes.';
+      errorBox.classList.add('visible');
+      resetForm.elements.senha.focus();
+      return;
+    }
+    if (senha !== confirmacao) {
+      errorBox.textContent = 'As senhas informadas não coincidem.';
+      errorBox.classList.add('visible');
+      resetForm.elements.confirmacao.focus();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Redefinindo...';
+    try {
+      const response = await fetch(`${API_BASE_URL}/funcionarios/redefinir-senha`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetForm.elements.token.value, senha }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.erro || 'Não foi possível redefinir a senha.');
+      errorBox.textContent = result.mensagem;
+      errorBox.classList.add('visible', 'success');
+      resetForm.reset();
+      window.history.replaceState({}, '', window.location.pathname);
+    } catch (error) {
+      errorBox.textContent = error instanceof TypeError
+        ? 'Não foi possível conectar ao servidor.'
+        : error.message;
+      errorBox.classList.add('visible');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Redefinir senha';
+    }
   });
 }
 
