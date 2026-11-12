@@ -1,6 +1,18 @@
 const pool = require('../config/database');
 
-const ALLOWED_COLUMNS = ['nome', 'descricao'];
+const ALLOWED_COLUMNS = [
+    'nome',
+    'descricao',
+    'setor',
+    'imagem',
+    'tamanho',
+    'preco',
+    'quantidade',
+    'modelo',
+    'localizacao',
+    'estado_produto',
+    'proxima_revisao',
+];
 
 class ProdutoRepository {
     async findAll() {
@@ -36,12 +48,14 @@ class ProdutoRepository {
         }
 
         if (!camposValidos.nome || !camposValidos.descricao) {
-            throw { status: 400, mensagem: 'Nome e descrição são obrigatórios' };
+            throw { status: 400, mensagem: 'Nome e modelo/descrição são obrigatórios' };
         }
 
+        const columns = Object.keys(camposValidos);
+        const placeholders = columns.map(() => '?').join(', ');
         const [result] = await pool.query(
-            'INSERT INTO produto (nome, descricao) VALUES (?, ?)',
-            [camposValidos.nome, camposValidos.descricao]
+            `INSERT INTO produto (${columns.join(', ')}) VALUES (${placeholders})`,
+            columns.map((column) => camposValidos[column])
         );
         return result.insertId;
     }
@@ -68,6 +82,17 @@ class ProdutoRepository {
     async delete(id) {
         const [result] = await pool.query('DELETE FROM produto WHERE id_produto = ?', [id]);
         return result.affectedRows;
+    }
+
+    async hasReferences(id) {
+        const [rows] = await pool.query(`
+            SELECT
+                EXISTS(SELECT 1 FROM lote WHERE id_produto = ?) OR
+                EXISTS(SELECT 1 FROM entrada WHERE id_produto = ?) OR
+                EXISTS(SELECT 1 FROM saida WHERE id_produto = ?) OR
+                EXISTS(SELECT 1 FROM movimentacao_estoque WHERE id_produto = ?) AS possui_referencias
+        `, [id, id, id, id]);
+        return Boolean(rows[0].possui_referencias);
     }
 }
 

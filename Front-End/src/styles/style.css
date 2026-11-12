@@ -52,7 +52,9 @@ body.high-contrast {
 body.high-contrast .card,
 body.high-contrast .app-sidebar,
 body.high-contrast .login-card,
-body.high-contrast input {
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
   border: 1px solid var(--color-line);
 }
 
@@ -306,12 +308,46 @@ button {
   height: 42px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+}
+.field select { min-height: 42px; }
+.field textarea { resize: vertical; }
 .field input:focus {
   border-color: var(--color-primary);
   box-shadow: var(--focus-ring);
   outline: none;
 }
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
 .field input::placeholder { color: var(--color-muted); }
+.field select {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+}
+.field select:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
 .field-hint { font-size: 12px; color: var(--color-muted); margin-top: 6px; line-height: 1.4; }
 
 .btn-primary {
@@ -902,6 +938,90 @@ a.kpi-grid:active {
 .pill.warn { background: var(--color-warning-bg); color: var(--color-warning); }
 .pill.danger { background: var(--color-danger-bg); color: var(--color-danger); }
 
+.manager-product-layout {
+  display: grid;
+  gap: 24px;
+}
+
+.product-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+}
+
+.product-form-grid .field-wide {
+  grid-column: 1 / -1;
+}
+
+.product-submit {
+  margin-top: 8px;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+}
+
+.text-button:hover {
+  text-decoration: underline;
+}
+
+.text-button:disabled {
+  color: var(--color-muted);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.stock-edit-dialog {
+  width: min(560px, calc(100% - 32px));
+  max-height: min(90vh, 760px);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-card);
+}
+
+.stock-edit-dialog::backdrop {
+  background: rgba(24, 25, 37, 0.58);
+  backdrop-filter: blur(2px);
+}
+
+.stock-edit-dialog form {
+  padding: 28px;
+}
+
+.danger-button {
+  color: var(--color-danger);
+}
+
+.data-table td .text-button + .text-button {
+  margin-left: 6px;
+}
+
+[data-product-list] td,
+[data-stock-products] td,
+[data-stock-movements] td {
+  min-width: 100px;
+}
+
+@media (max-width: 600px) {
+  .product-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-form-grid .field-wide {
+    grid-column: auto;
+  }
+}
+
 /* ============================================================
    RESPONSIVIDADE (Tablets e Celulares)
    ============================================================ */
@@ -1215,6 +1335,81 @@ a.kpi-grid:active {
 .view-all-notifications:hover {
   opacity: 0.8;
   text-decoration: underline;
+}
+
+.notification-empty {
+  margin: 0;
+  padding: 20px 16px;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.notification-item.is-read .notification-content { opacity: 0.62; }
+.notification-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.notification-actions a,
+.notification-read-toggle {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.notification-actions a:hover,
+.notification-read-toggle:hover { text-decoration: underline; }
+.notification-read-toggle { color: var(--color-muted); }
+
+.notification-page-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.notification-page-controls select {
+  min-height: 42px;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+}
+.notification-center-list .notification-item { cursor: default; }
+.notification-center-list .notification-actions { min-width: 220px; }
+
+.return-status {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.return-status.status-pendente { color: var(--color-warning); }
+.return-status.status-em_analise { color: var(--color-primary); }
+.return-status.status-reintegrada { color: var(--color-success); }
+.return-status.status-recusada { color: var(--color-danger); }
+.return-actions { white-space: nowrap; }
+.return-actions .text-button { margin-right: 10px; }
+
+@media (max-width: 640px) {
+  .notification-page-controls { align-items: stretch; flex-direction: column; }
+  .notification-page-controls select,
+  .notification-page-controls button { width: 100%; }
+  .notification-center-list .notification-item { align-items: flex-start; }
+  .notification-center-list .notification-actions { width: 100%; margin-left: 38px; justify-content: flex-start; }
 }
 
 /* Overlay para fechar o popup quando clicar fora */

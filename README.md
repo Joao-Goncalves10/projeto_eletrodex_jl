@@ -139,6 +139,20 @@ O sistema registra a movimentação dos produtos, armazenando informações como
 
 As movimentações ficam registradas para permitir o acompanhamento do histórico dos produtos.
 
+### Setor do estoquista
+
+O estoquista entra com o e-mail e a senha da conta que o administrador cadastrou e recebeu o cargo **Estoquista**. Na página **Operação do estoque**, pode registrar entradas e saídas, informar setor e localização, atualizar a conservação e consultar o histórico. Saídas acima do saldo disponível são recusadas.
+
+### Gestão do gerente
+
+Gerentes e administradores podem cadastrar, editar e excluir produtos em **Gestão de produtos**, incluindo nome, setor, imagem para download, tamanho, preço, quantidade, modelo, localização e conservação. Para preservar o inventário e o histórico, é preciso zerar o saldo; produtos com lotes ou movimentações associados não podem ser excluídos.
+
+Depois de criar o banco com `Back-End/database.sql` e executar as migrações anteriores, aplique `Back-End/migrations/002_gestao_estoque.sql`, `Back-End/migrations/003_ajustes_estoque.sql`, `Back-End/migrations/004_devolucoes.sql` e `Back-End/migrations/005_saidas_vendas.sql`, nessa ordem, tanto em instalações novas quanto em bancos existentes. As migrações adicionam os campos de produto, o histórico de entradas/saídas, o tipo de ajuste de conservação, os registros de devolução e a quantidade das saídas de venda.
+
+Em **Operação do estoque**, o estoquista registra entradas e saídas, edita a organização e conservação do item ou o retira do estoque, preservando o cadastro e o histórico. O endereço antigo de **Entrada de produtos** redireciona para esse fluxo.
+
+Na aba **Saídas de vendas**, o vendedor seleciona um lote com saldo e informa a quantidade e o setor. A venda e a baixa do lote são gravadas juntas; quantidades acima do saldo disponível são recusadas. Cada vendedor consulta apenas as próprias saídas.
+
 ### 📥 Entrada de produtos
 
 Permite registrar:
@@ -174,6 +188,8 @@ Para realizar uma devolução, o sistema deve solicitar:
 - ID do produto.
 
 Essas informações são utilizadas para análise da devolução.
+
+Devoluções ficam pendentes até um funcionário iniciar a análise. A equipe pode reintegrar a quantidade aprovada ao lote ou recusar a solicitação; cada decisão fica registrada com o funcionário revisor.
 
 ### 💳 Pagamentos
 
